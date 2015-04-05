@@ -1,0 +1,83 @@
+<!doctype html>
+<html ng-app="demoApp">
+	<head>
+		 <!--<script src="angular.js">--></script><!-- promise.catch is in angular 1.2.x  -->
+		 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.min.js"></script>
+	</head>
+
+	<body ng-controller="SimpleController">
+	<h2>Demo $q from http://www.webdeveasy.com/javascript-promises-and-angularjs-q-service/</h2>
+  
+	<script>
+	var demoApp = angular.module("demoApp", []);
+	
+	demoApp.controller('SimpleController', function ($scope, $q, $timeout){
+		console.log("begin SimpleController to demo $q");
+		// Let's imagine those are really asynchronous functions
+		function async1(value) {  
+			console.log("hit async1, input param value = " + value);
+			var deferred = $q.defer();
+			console.log("in async1, deferred created = " + JSON.stringify(deferred));
+			
+			var asyncCalculation = value * 2;
+			//deferred.resolve(asyncCalculation);
+			console.log("in async1, mutliply(*) will take 3 seconds");
+			$timeout(function() {
+                    //deferred.resolve( { status: "promise" } );
+					console.log("after multiply by 2, async1 passes asyncCalculation value into resolve param = " + asyncCalculation);
+					deferred.resolve(asyncCalculation);
+					console.log("after deferred.resolve(), deferred = "+ JSON.stringify(deferred));
+            }, 3000);	
+			console.log("async1 immed returns the deferred.promise = " + JSON.stringify(deferred.promise));
+			return deferred.promise;
+		};
+		function async2(value) { 
+			console.log("hit async2, input param value = " + value);
+			var deferred = $q.defer();
+			var asyncCalculation = value + 1;
+			
+			//deferred.resolve(asyncCalculation);
+			console.log("in async2, pretend add+ will take 3 secs");
+			$timeout(function() {
+                    //deferred.resolve( { status: "promise" } );
+					console.log("after add 1, ready to return asyncCalculation = " + asyncCalculation);
+					
+					//play with resolve or reject ...
+					//deferred.resolve(asyncCalculation);  
+					console.log("but something went bad trying to add+");
+					deferred.reject("bad happened in async2"); 	
+            }, 3000);
+			
+			console.log("async2 returning deferred.promise = " + JSON.stringify(deferred.promise));
+			return deferred.promise;
+		};
+
+	/*
+		var promise = async1(10)  
+			.then(function(x) {
+				return async2(x);
+			});
+		promise.then(function(x) {  
+			console.log(x);
+		});
+	*/
+				
+		function logValue(value) {
+			console.log("hit logValue, input param value = " + value);
+		};
+		
+		function handleReject(error){
+			console.log("hit handleReject, some callback(s) might have been skipped.  anyway, error = " + error);
+		};
+		
+		//mas: better n succinct
+		async1(10)  
+		.then(async2)
+		.then(logValue)
+		.catch(handleReject);
+		
+	});
+	</script>
+
+	</body>
+</html>
